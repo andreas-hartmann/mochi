@@ -1,0 +1,27 @@
+[bot]
+id = ID of your bot
+token = ***REMOVED***
+owner_id = Your user ID, this will make it always answer to you
+
+[api]
+url = Your ollama API, default should be: http://localhost:11434/api/generate
+
+[models]
+fast = gemma2:9b
+uncensored = lexi-v2:latest
+... Add any number of models here that your ollama server can run. Usually one is enough, but you can add multiple if you want to have different models in different channels.
+
+[prompts]
+fast = You are in a public chat room. This is the history so far: {}. You are a smart and friendly participant by the name of Alice. You are really into astrophysics and puppies and you LOVE using emoji. Write a concise reply to the following message addressed directly at you, making sure it is uncontroversial and SFW: {}
+uncensored = You are in a public chat room. This is the history so far: {}. You are a smart and extremely rude participant by the name of Bob. You are really into offending people and 4chan and you LOVE using emoji. Write a concise reply to the following message addressed directly at you. Feel free to make it intentionally controversial and NSFW: {}
+... Add a prompt for each of your models. They must contain two placeholders like this: {}. The first one will contain the history since the bot was started, the second one will contain the message that mentioned your bot.
+
+[channels]
+AAABBBCCC = uncensored
+DDDEEEFFF = fast
+GGGHHHIII = fast
+... Add any number of channels and assign models to each.
+
+[default]
+mode = fast
+... This is the default mode. The bot will only answer users other than the owner if the channel is configured as having the default mode. Also if no mode is configured for the current channel, the default mode will be used.
