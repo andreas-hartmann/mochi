@@ -6,7 +6,7 @@ import logging
 import configparser
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('config/config.ini')
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('revolt').setLevel(logging.WARN)
