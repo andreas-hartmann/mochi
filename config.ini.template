@@ -1,6 +1,6 @@
 [bot]
 id = ID of your bot
-token = ***REMOVED***
+token = Your token
 owner_id = Your user ID, this will make it always answer to you
 
 [api]
