@@ -3,49 +3,61 @@ import revolt
 import asyncio
 import ollama
 import logging
-import configparser
+import traceback
+from config_loader import load_config
 
-config = configparser.ConfigParser()
-config.read('config/config.ini')
+config = load_config()
 
-logging.basicConfig(level=logging.INFO)
-logging.getLogger('revolt').setLevel(logging.WARN)
-
-BOT_NAME = config['bot']['id']
-OWNER_ID = config['bot']['owner_id']
-BOT_TOKEN = config['bot']['token']
-OLLAMA_API_URL = config['api']['url']
-MODELS = {k: v for k, v in config.items('models')}
-PROMPTS = {k: v for k, v in config.items('prompts')}
-CHANNELS = {k: v for k, v in config.items('channels')}
-DEFAULT_MODE = config['default']['mode']
-
-def run_ollama_prompt(model, prompt):
-    return ollama.generate(model=model, prompt=prompt)
+async def run_ollama_prompt(model, prompt):
+    try:
+        logging.info(f"Running Ollama prompt on model '{model}' with prompt: {prompt}")
+        response = await asyncio.to_thread(ollama.generate, model=model, prompt=prompt)
+        if 'response' in response:
+            return response['response']
+        else:
+            logging.error(f"Unexpected response from Ollama: {response}")
+            return "Error: Unexpected response from model."
+    except Exception as e:
+        logging.error(f"Error calling Ollama API: {e}")
+        traceback.print_exc()
+        return "Error: Unable to get response from the model."
 
 class Client(revolt.Client):
     async def on_message(self, message: revolt.Message):
-        if BOT_NAME in message.raw_mentions:
-            mode = CHANNELS.get(message.channel.id, DEFAULT_MODE)
-            logging.info("CHANNEL: " + message.channel.id)
-            logging.info("MODE: " + mode)
-            if mode != DEFAULT_MODE and message.author.id != OWNER_ID:
-                reply = "ACCESS DENIED - try in another channel :)"
-            else:
-                model = MODELS.get(mode)
-                history = message.state.messages
-                context = ' '.join([msg.content for msg in reversed(history)])
-                prompt = PROMPTS.get(mode).format(context, message.content)
-                logging.info("PROMPT: " + prompt)
-                msg = run_ollama_prompt(model, prompt)
-                reply = msg['response']
-                logging.info("REPLY: " + reply)
-            await message.channel.send(reply)
+        try:
+            if config['BOT_NAME'] in message.raw_mentions:
+                mode = config['CHANNELS'].get(message.channel.id, config['DEFAULT_MODE'])
+                logging.info(f"CHANNEL: {message.channel.id}, MODE: {mode}, USER: {message.author.id}")
 
+                if mode != config['DEFAULT_MODE'] and message.author.id != config['OWNER_ID']:
+                    reply = "ACCESS DENIED - try in another channel :)"
+                else:
+                    model = config['MODELS'].get(mode)
+                    history = message.state.messages
+                    context = ' '.join([msg.content for msg in reversed(history)])
+                    prompt = config['PROMPTS'].get(mode).format(context, message.content)
+
+                    logging.info(f"PROMPT: {prompt}")
+
+                    # Get the response from the model
+                    reply = await run_ollama_prompt(model, prompt)
+                    logging.info(f"REPLY: {reply}")
+
+                # Send the reply message
+                await message.channel.send(reply)
+        except Exception as e:
+            logging.error(f"Error handling message: {e}")
+            traceback.print_exc()
+            await message.channel.send("An error occurred while processing your request.")
 
 async def main():
-    async with aiohttp.ClientSession() as session:
-        client = Client(session, BOT_TOKEN)
-        await client.start()
+    try:
+        async with aiohttp.ClientSession() as session:
+            client = Client(session, config['BOT_TOKEN'])
+            await client.start()
+    except Exception as e:
+        logging.error(f"Error in main bot function: {e}")
+        traceback.print_exc()
 
-asyncio.run(main())
+if __name__ == '__main__':
+    asyncio.run(main())

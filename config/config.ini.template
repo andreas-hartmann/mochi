@@ -2,6 +2,7 @@
 id = ID of your bot
 token = Your token
 owner_id = Your user ID, this will make it always answer to you
+plugins = noop - replace with a comma-separated list of plugins to be activated
 
 [api]
 url = Your ollama API, default should be: http://localhost:11434/api/generate
