@@ -8,6 +8,10 @@ from config_loader import load_config
 
 config = load_config()
 
+REVOLT_MAX_MESSAGE_LENGTH = 1000
+
+logging.basicConfig(level=logging.INFO)
+
 async def run_ollama_prompt(model, prompt):
     try:
         logging.info(f"Running Ollama prompt on model '{model}' with prompt: {prompt}")
@@ -42,12 +46,13 @@ class Client(revolt.Client):
 
                     logging.info(f"PROMPT: {prompt}")
 
-                    # Get the response from the model
                     reply = await run_ollama_prompt(model, prompt)
                     logging.info(f"REPLY: {reply}")
 
-                # Send the reply message
-                await message.channel.send(reply)
+                chunks = [reply[i:i + REVOLT_MAX_MESSAGE_LENGTH] for i in range(0, len(reply), REVOLT_MAX_MESSAGE_LENGTH)]
+
+                for chunk in chunks:
+                    await message.channel.send(chunk)
         except Exception as e:
             logging.error(f"Error handling message: {e}")
             traceback.print_exc()
