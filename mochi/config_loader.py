@@ -1,17 +1,15 @@
-import configparser
+import toml
 import logging
 
-def load_config(config_file='../config/config.ini'):
-    config = configparser.ConfigParser()
+def load_config(config_file='../config/config.toml'):
     try:
-        config.read(config_file)
+        config = toml.load(config_file)
 
-        # Required sections and keys
         bot_config = config['bot']
         api_config = config['api']
-        models_config = dict(config.items('models'))
-        prompts_config = dict(config.items('prompts'))
-        channels_config = dict(config.items('channels'))
+        models_config = config['models']
+        prompts_config = config['prompts']
+        channels_config = config['channels']
         default_config = config['default']
 
         return {
