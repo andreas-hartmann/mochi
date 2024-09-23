@@ -33,9 +33,12 @@ class Client(revolt.Client):
                     reply = "ACCESS DENIED - try in another channel :)"
                 else:
                     model = config['MODELS'].get(mode)
-                    history = message.state.messages
-                    context = ' '.join([msg.content for msg in reversed(history)])
-                    prompt = config['PROMPTS'].get(mode).format(context, message.content)
+                    history = ' '.join([historic_message.content for historic_message in reversed(message.state.messages)])
+                    prompt = config['PROMPTS'].get(mode).format(
+                        server_name = message.channel.server.name,
+                        channel_name = message.channel.name,
+                        history = history,
+                        message = message.content)
 
                     logging.info(f"PROMPT: {prompt}")
 
