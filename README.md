@@ -1,7 +1,6 @@
 # mochi
 
-This is a basic LLM-based chatbot for the chat app Revolt. It supports per channel models and prompts as well as
-automatic transient history keeping.
+Mochi is a configurable LLM-based chatbot for Revolt. It supports per channel models and prompts as well as automatic transient history keeping and basic context awareness.
 
 ## Requirements
 * Only runs on Python 3.10 right now.
