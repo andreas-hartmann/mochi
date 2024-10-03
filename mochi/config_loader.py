@@ -1,9 +1,12 @@
 import toml
 import logging
+import os
 
 def load_config(config_file='../config/config.toml'):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_file_path = os.path.join(script_dir, config_file)
     try:
-        config = toml.load(config_file)
+        config = toml.load(config_file_path)
 
         bot_config = config['bot']
         api_config = config['api']
@@ -22,6 +25,9 @@ def load_config(config_file='../config/config.toml'):
             'CHANNELS': channels_config,
             'DEFAULT_MODE': default_config['mode']
         }
+    except FileNotFoundError as e:
+        print(f"Error loading config: {e}")
+        raise
     except KeyError as e:
         logging.error(f"Missing required configuration section or key: {e}")
         raise
