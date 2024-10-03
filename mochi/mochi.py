@@ -6,11 +6,9 @@ import logging
 import traceback
 from config_loader import load_config
 
+logging.basicConfig(level=logging.INFO)  # Set up logging configuration here
 config = load_config()
-
 REVOLT_MAX_MESSAGE_LENGTH = 1000
-
-logging.basicConfig(level=logging.INFO)
 
 async def run_ollama_prompt(model, prompt):
     try:

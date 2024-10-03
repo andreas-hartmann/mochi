@@ -6,6 +6,7 @@ def load_config(config_file='../config/config.toml'):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     config_file_path = os.path.join(script_dir, config_file)
     try:
+        logging.info(f"Loading config file {config_file_path}")
         config = toml.load(config_file_path)
 
         bot_config = config['bot']
