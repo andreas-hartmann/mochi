@@ -1,28 +1,15 @@
 import aiohttp
 import revolt
 import asyncio
-import ollama
 import logging
 import traceback
 from config_loader import load_config
+from ai import run_ollama_prompt
+from logging_initializer import initialize_logging
 
-logging.basicConfig(level=logging.INFO)  # Set up logging configuration here
+initialize_logging()
 config = load_config()
 REVOLT_MAX_MESSAGE_LENGTH = 1000
-
-async def run_ollama_prompt(model, prompt):
-    try:
-        logging.info(f"Running Ollama prompt on model '{model}' with prompt: {prompt}")
-        response = await asyncio.to_thread(ollama.generate, model=model, prompt=prompt)
-        if 'response' in response:
-            return response['response']
-        else:
-            logging.error(f"Unexpected response from Ollama: {response}")
-            return "Error: Unexpected response from model."
-    except Exception as e:
-        logging.error(f"Error calling Ollama API: {e}")
-        traceback.print_exc()
-        return "Error: Unable to get response from the model."
 
 class Client(revolt.Client):
     async def on_message(self, message: revolt.Message):
